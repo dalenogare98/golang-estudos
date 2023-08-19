@@ -6,8 +6,9 @@ import (
 	"os"
 	"time"
 
-	"github.com/crud-go/initializers"
-	"github.com/crud-go/models"
+	"crud-go/initializers"
+	"crud-go/models"
+
 	"github.com/gin-gonic/gin"
 	"github.com/golang-jwt/jwt"
 )
@@ -17,7 +18,7 @@ func RequireAuth(c *gin.Context) {
 	tokenString, err := c.Cookie("Authorization")
 
 	if err != nil {
-		c.JSON(http.StatusUnauthorized, gin.H {
+		c.JSON(http.StatusUnauthorized, gin.H{
 			"error": "No token found",
 		})
 		return
@@ -37,7 +38,7 @@ func RequireAuth(c *gin.Context) {
 		// Check the expiration
 		if float64(time.Now().Unix()) > claims["exp"].(float64) {
 			// c.AbortWithStatus(http.StatusUnauthorized)
-			c.JSON(http.StatusUnauthorized, gin.H {
+			c.JSON(http.StatusUnauthorized, gin.H{
 				"error": "Token expired",
 			})
 			return

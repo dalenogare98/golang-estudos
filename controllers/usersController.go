@@ -5,8 +5,9 @@ import (
 	"os"
 	"time"
 
-	"github.com/crud-go/initializers"
-	"github.com/crud-go/models"
+	"crud-go/initializers"
+	"crud-go/models"
+
 	"github.com/golang-jwt/jwt"
 
 	"github.com/gin-gonic/gin"
@@ -121,14 +122,14 @@ func Login(c *gin.Context) {
 	return
 }
 
-func Validate (c *gin.Context) {
+func Validate(c *gin.Context) {
 	user, exists := c.Get("user")
 
 	if !exists {
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H {
+	c.JSON(http.StatusOK, gin.H{
 		"message": user,
 	})
 }

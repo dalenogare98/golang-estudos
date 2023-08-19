@@ -1,7 +1,7 @@
 package initializers
 
 import (
-	"github.com/crud-go/models"
+	"crud-go/models"
 )
 
 func SyncDatabase() {

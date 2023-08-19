@@ -1,4 +1,4 @@
-module github.com/crud-go
+module crud-go
 
 go 1.21
 
