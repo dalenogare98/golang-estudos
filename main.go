@@ -1,7 +1,7 @@
 package main
 
 import (
-	"crud-go/controllers"
+	"crud-go/handlers/rest/controllers"
 	"crud-go/initializers"
 	"crud-go/middleware"
 	"github.com/gin-gonic/gin"
@@ -25,6 +25,6 @@ func main() {
 	r.POST("/users", controllers.SignUp)
 	r.POST("/login", controllers.Login)
 	r.GET("/validate", middleware.RequireAuth, controllers.Validate)
-	
+
 	r.Run() // listen and serve on 0.0.0.0:8080
 }
