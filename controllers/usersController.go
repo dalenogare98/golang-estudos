@@ -16,10 +16,7 @@ import (
 
 func SignUp(c *gin.Context) {
 	// Get the email/pass off req body
-	var body struct {
-		Email    string
-		Password string
-	}
+	var body models.User
 
 	err := c.Bind(&body)
 
