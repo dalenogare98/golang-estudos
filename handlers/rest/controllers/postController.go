@@ -4,28 +4,24 @@ import (
 	"crud-go/handlers/rest"
 	"crud-go/initializers"
 	"crud-go/models"
+	"github.com/labstack/echo/v4"
 	"net/http"
-
-	"github.com/gin-gonic/gin"
 )
 
-func PostsCreate(c *gin.Context) {
+func PostsCreate(c echo.Context) error {
 	// Get data off req body
 	var body models.Post
 
 	err := c.Bind(&body)
 
 	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{
+		return c.JSON(http.StatusBadRequest, echo.Map{
 			"error": "Failed to read body",
 		})
-
-		return
 	}
 
 	if err = body.Validate(); err != nil {
-		rest.ValidationError(c, err)
-		return
+		return rest.ValidationError(c, err)
 	}
 
 	// Create a post
@@ -34,86 +30,93 @@ func PostsCreate(c *gin.Context) {
 	// Return it
 
 	if result.Error != nil {
-		c.JSON(http.StatusBadRequest, gin.H{
+		return c.JSON(http.StatusBadRequest, echo.Map{
 			"error": "Failed to create post",
 		})
-
-		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{
+	return c.JSON(http.StatusOK, echo.Map{
 		"post": post,
 	})
 }
 
-func PostsIndex(c *gin.Context) {
+func PostsIndex(c echo.Context) error {
 	// Get the posts
 	var posts []models.Post
 	result := initializers.DB.Find(&posts)
 
 	if result.Error != nil {
-		c.JSON(http.StatusBadRequest, gin.H{
+		return c.JSON(http.StatusBadRequest, echo.Map{
 			"error": "User not found",
 		})
-		return
 	}
 
 	// Respond with them
-	c.JSON(http.StatusOK, gin.H{
+	return c.JSON(http.StatusOK, echo.Map{
 		"posts": posts,
 	})
 }
 
-func PostsShow(c *gin.Context) {
-	// Get if off url
+func PostsShow(c echo.Context) error {
+
 	id := c.Param("id")
-	// Get the posts
+
 	var post models.Post
 	result := initializers.DB.First(&post, id)
 
 	if result.Error != nil {
-		c.JSON(http.StatusBadRequest, gin.H{
+		return c.JSON(http.StatusBadRequest, echo.Map{
 			"error": "Usuário não encontrado",
 		})
-		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{
+	return c.JSON(http.StatusOK, echo.Map{
 		"post": post,
 	})
 }
 
-func PostsUpdate(c *gin.Context) {
-	// Get the id of the url
+func PostsUpdate(c echo.Context) error {
+	
 	id := c.Param("id")
-	// Get the data off req body
+
 	var body struct {
 		Body  string
 		Title string
 	}
 
 	c.Bind(&body)
-	// Find the post were updating
+
 	var post models.Post
 	initializers.DB.First(&post, id)
-	// Update it
-	initializers.DB.Model(&post).Updates(models.Post{
+
+	err := initializers.DB.Model(&post).Updates(models.Post{
 		Title: body.Title,
 		Body:  body.Body,
 	})
-	// Respond with it
-	c.JSON(200, gin.H{
+
+	if err != nil {
+		return c.JSON(http.StatusBadRequest, echo.Map{
+			"error": "Erro ao atualizarpost",
+		})
+	}
+
+	return c.JSON(200, echo.Map{
 		"post": post,
 	})
 }
 
-func PostsDelete(c *gin.Context) {
-	// Get the id of the url
+func PostsDelete(c echo.Context) error {
+
 	id := c.Param("id")
 
-	// Delete the post
-	initializers.DB.Delete(&models.Post{}, id)
 
-	// Respond with
-	c.Status(200)
+	err := initializers.DB.Delete(&models.Post{}, id)
+
+	if err != nil {
+		return c.JSON(http.StatusBadRequest, echo.Map{
+			"error": "Erro ao deletar post",
+		})
+	}
+
+	return c.JSON(200, "")
 }

@@ -9,23 +9,23 @@ import (
 	"crud-go/initializers"
 	"crud-go/models"
 
-	"github.com/gin-gonic/gin"
+	"github.com/labstack/echo/v4"
 	"github.com/golang-jwt/jwt"
 )
 
-func RequireAuth(c *gin.Context) {
+func RequireAuth(c echo.Context) error {
 	// Get the cookie off req
 	tokenString, err := c.Cookie("Authorization")
 
 	if err != nil {
-		c.JSON(http.StatusUnauthorized, gin.H{
+		return c.JSON(http.StatusUnauthorized, echo.Map{
 			"error": "No token found",
 		})
-		return
+		
 	}
 
 	// Decode/Validate it
-	token, err := jwt.Parse(tokenString, func(token *jwt.Token) (interface{}, error) {
+	token, err := jwt.Parse(tokenString.Value, func(token *jwt.Token) (interface{}, error) {
 		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
 			return nil, fmt.Errorf("Unexpected signing method: %v", token.Header["alg"])
 		}
@@ -38,25 +38,23 @@ func RequireAuth(c *gin.Context) {
 		// Check the expiration
 		if float64(time.Now().Unix()) > claims["exp"].(float64) {
 			// c.AbortWithStatus(http.StatusUnauthorized)
-			c.JSON(http.StatusUnauthorized, gin.H{
+			return c.JSON(http.StatusUnauthorized, echo.Map{
 				"error": "Token expired",
 			})
-			return
+			
 		}
 
 		var user models.User
 		initializers.DB.First(&user, claims["sub"])
 
-		if user.ID == 0 {
-			c.AbortWithStatus(http.StatusUnauthorized)
-		}
 		// Attach to req
 		c.Set("user", user)
 
-		c.Next()
-	} else {
-		c.AbortWithStatus(http.StatusUnauthorized)
-	}
+		
+	} 
+	return c.JSON(http.StatusOK, echo.Map{
+		"token": token.Raw,
+	})
 
 	// Find the user with token sub
 }

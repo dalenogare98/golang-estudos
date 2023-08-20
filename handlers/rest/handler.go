@@ -5,11 +5,11 @@ import (
 	"log"
 	"net/http"
 
-	"github.com/gin-gonic/gin"
 	"github.com/go-playground/validator/v10"
+	"github.com/labstack/echo/v4"
 )
 
-func ValidationError(c *gin.Context, err error) {
+func ValidationError(c echo.Context, err error) error {
 	var errors []models.ValidationError
 
 	for _, e := range err.(validator.ValidationErrors) {
@@ -23,10 +23,8 @@ func ValidationError(c *gin.Context, err error) {
 
 		errors = append(errors, element)
 	}
-	
-	c.JSON(http.StatusBadRequest, gin.H{
+
+	return c.JSON(http.StatusBadRequest, echo.Map{
 		"error": errors,
 	})
-
-	return
 }

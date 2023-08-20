@@ -3,8 +3,7 @@ package main
 import (
 	"crud-go/handlers/rest/controllers"
 	"crud-go/initializers"
-	"crud-go/middleware"
-	"github.com/gin-gonic/gin"
+	"github.com/labstack/echo/v4"
 )
 
 func init() {
@@ -13,8 +12,9 @@ func init() {
 	initializers.SyncDatabase()
 }
 
+
 func main() {
-	r := gin.Default()
+	r := echo.New()
 
 	r.POST("/posts", controllers.PostsCreate)
 	r.PUT("/posts/:id", controllers.PostsUpdate)
@@ -24,7 +24,7 @@ func main() {
 
 	r.POST("/users", controllers.SignUp)
 	r.POST("/login", controllers.Login)
-	r.GET("/validate", middleware.RequireAuth, controllers.Validate)
+	r.GET("/validate", controllers.Validate)
 
-	r.Run() // listen and serve on 0.0.0.0:8080
+	r.Logger.Fatal(r.Start(":3000"))
 }
